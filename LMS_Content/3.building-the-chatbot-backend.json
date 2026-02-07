@@ -1,0 +1,134 @@
+{
+  "id": "building-the-chatbot-backend",
+  "title": "Building the Chatbot Backend",
+  "description": "Integrate ChatterBot into your Flask application to create an AI that can respond to user messages.",
+  "sections": [
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Learning Objectives\n- Understand how ChatterBot works\n- Initialize and train a chatbot with conversational data\n- Create an API endpoint to handle chat messages\n- Implement basic input validation for safety\n- Test your chatbot's responses\n\n---\n\n## What is ChatterBot?\n\n**ChatterBot** is a Python library that makes it easy to create chatbots. It uses machine learning to generate responses based on known conversations.\n\n### How ChatterBot Learns\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510     Training      \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 Training Data   \u2502 ─────────────────▶ \u2502    ChatterBot   \u2502\n\u2502 (Conversations) \u2502                    \u2502    Database     \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                               \u2502\n                           User Message        \u2502\n                                \u2502              \u2502\n                                \u25bc              \u25bc\n                    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                    \u2502  Find most similar known  \u2502\n                    \u2502  statement in database    \u2502\n                    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                \u2502\n                                \u25bc\n                    \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                    \u2502  Return the known response  \u2502\n                    \u2502  to that statement          \u2502\n                    \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n1. **Training**: ChatterBot learns from example conversations\n2. **Matching**: When a user sends a message, it finds the most similar statement it knows\n3. **Responding**: It returns the known response to that statement"
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "Understanding ChatterBot",
+      "content": {
+        "question": "How does ChatterBot generate responses to user messages?",
+        "options": [
+          "It writes completely new sentences using AI creativity",
+          "It searches the internet for answers",
+          "It finds similar statements in its training data and returns known responses",
+          "It randomly picks words to form sentences"
+        ],
+        "correct_index": 2,
+        "explanation": "ChatterBot works by matching user input to similar statements in its training database. When it finds a match, it returns the response that was paired with that statement during training. This is why the quality of training data is so important!"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Update Your app.py\n\nLet's modify `app.py` to include the chatbot. Replace your existing code with this:\n\n```python\nfrom flask import Flask, render_template, request, jsonify\nfrom chatterbot import ChatBot\nfrom chatterbot.trainers import ChatterBotCorpusTrainer\n\n# Create the Flask application\napp = Flask(__name__)\n\n# Initialize the chatbot\nchatbot = ChatBot(\n    'StudentBot',\n    storage_adapter='chatterbot.storage.SQLStorageAdapter',\n    database_uri='sqlite:///chatbot_database.sqlite3'\n)\n\n# Train the chatbot with English conversations\ntrainer = ChatterBotCorpusTrainer(chatbot)\ntrainer.train('chatterbot.corpus.english')\n\n\n@app.route('/')\ndef home():\n    \"\"\"Serve the main chat page.\"\"\"\n    return render_template('index.html')\n\n\n@app.route('/chat', methods=['POST'])\ndef chat():\n    \"\"\"Handle chat messages and return bot responses.\"\"\"\n    # Get the message from the request\n    data = request.get_json()\n    user_message = data.get('message', '')\n    \n    # Basic input validation\n    if not user_message:\n        return jsonify({'response': 'Please enter a message!'})\n    \n    if len(user_message) > 500:\n        return jsonify({'response': 'Message too long! Please keep it under 500 characters.'})\n    \n    # Get the chatbot's response\n    bot_response = chatbot.get_response(user_message)\n    \n    return jsonify({'response': str(bot_response)})\n\n\nif __name__ == '__main__':\n    app.run(host='0.0.0.0', port=5000, debug=True)\n```"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Understanding the New Code\n\n### Imports\n\n```python\nfrom flask import Flask, render_template, request, jsonify\nfrom chatterbot import ChatBot\nfrom chatterbot.trainers import ChatterBotCorpusTrainer\n```\n\n| Import | Purpose |\n|--------|----------|\n| `render_template` | Load HTML files from a `templates` folder |\n| `request` | Access data sent by the user's browser |\n| `jsonify` | Convert Python data to JSON for API responses |\n| `ChatBot` | The main ChatterBot class |\n| `ChatterBotCorpusTrainer` | Tool to train the bot with pre-made conversations |\n\n### Chatbot Initialization\n\n```python\nchatbot = ChatBot(\n    'StudentBot',\n    storage_adapter='chatterbot.storage.SQLStorageAdapter',\n    database_uri='sqlite:///chatbot_database.sqlite3'\n)\n```\n\n- **'StudentBot'**: The name of your chatbot (you can change this!)\n- **storage_adapter**: Tells ChatterBot to use a SQL database\n- **database_uri**: The database file where conversations are stored\n\n### Training\n\n```python\ntrainer = ChatterBotCorpusTrainer(chatbot)\ntrainer.train('chatterbot.corpus.english')\n```\n\nThis loads thousands of example English conversations to teach your bot common phrases and responses."
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "Understanding the Chat Route",
+      "content": {
+        "question": "In the `/chat` route, what does `methods=['POST']` mean?",
+        "options": [
+          "The route can only be accessed by mail",
+          "The route only accepts POST requests (data submitted by the user)",
+          "The route posts messages to social media",
+          "The route sends data to the post office"
+        ],
+        "correct_index": 1,
+        "explanation": "methods=['POST'] means this route only responds to POST requests. POST is used when sending data to the server (like a chat message). GET requests (the default) are used for retrieving pages. This separation keeps our app organized and secure."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## The Chat API Endpoint\n\nThe `/chat` route is called an **API endpoint**. It's a URL that programs (not just browsers) can communicate with.\n\n### How It Works\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                          \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  User's Browser  \u2502  POST /chat            \u2502  Flask Server   \u2502\n\u2502                  \u2502  {\"message\": \"Hello\"}  \u2502                 \u2502\n\u2502                  \u2502 ─────────────────────▶ \u2502                 \u2502\n\u2502                  \u2502                        \u2502  1. Validate    \u2502\n\u2502                  \u2502                        \u2502  2. Get response\u2502\n\u2502                  \u2502                        \u2502  3. Return JSON \u2502\n\u2502                  \u2502 ◀───────────────────── \u2502                 \u2502\n\u2502                  \u2502  {\"response\": \"Hi!\"}   \u2502                 \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                          \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n### The Code Breakdown\n\n```python\n@app.route('/chat', methods=['POST'])\ndef chat():\n    # Get the JSON data from the request\n    data = request.get_json()\n    user_message = data.get('message', '')\n```\n\n- `request.get_json()`: Extracts JSON data sent by the browser\n- `.get('message', '')`: Safely gets the 'message' key, or empty string if missing"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Input Validation: Why It Matters\n\nNotice these lines in our code:\n\n```python\n    if not user_message:\n        return jsonify({'response': 'Please enter a message!'})\n    \n    if len(user_message) > 500:\n        return jsonify({'response': 'Message too long! Please keep it under 500 characters.'})\n```\n\n### Why Validate Input?\n\n| Risk | What Could Happen | Our Protection |\n|------|-------------------|----------------|\n| **Empty messages** | Server crashes or wastes resources | Check if message exists |\n| **Very long messages** | Server slows down or crashes | Limit to 500 characters |\n| **Malicious code** | Security vulnerabilities | ChatterBot sanitizes by default |\n\n> \ud83d\udd12 **Security Principle**: Never trust user input! Always validate before processing."
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "Input Validation",
+      "content": {
+        "question": "Why do we check if the message is longer than 500 characters?",
+        "options": [
+          "ChatterBot can only understand short sentences",
+          "To prevent users from sending extremely long messages that could slow down or crash the server",
+          "Longer messages cost more money to process",
+          "The database can only store 500 characters"
+        ],
+        "correct_index": 1,
+        "explanation": "Limiting message length is a security and performance measure. Without this check, a malicious user could send millions of characters, potentially crashing your server or using up all available memory. This is called a 'denial of service' attack."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Create the Templates Folder\n\nFlask looks for HTML files in a folder called `templates`. Let's create it:\n\n### Step 1: Create the Folder\n\n1. In the file explorer (left sidebar), right-click on the main folder\n2. Select **\"New Folder\"**\n3. Name it `templates` (lowercase, no typos!)\n\n### Step 2: Create a Placeholder HTML File\n\nCreate a file called `index.html` inside the `templates` folder:\n\n1. Right-click on the `templates` folder\n2. Select **\"New File\"**\n3. Name it `index.html`\n4. Add this temporary content:\n\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>My AI Chatbot</title>\n</head>\n<body>\n    <h1>Chatbot Coming Soon!</h1>\n    <p>The backend is ready. Frontend coming in the next lesson!</p>\n</body>\n</html>\n```\n\n> \ud83d\udca1 **Note**: We'll build a proper chat interface in the next lesson. This placeholder confirms everything is connected."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Test Your Backend\n\nLet's make sure the chatbot backend is working.\n\n### Step 1: Run the Application\n\nIn the terminal:\n\n```bash\npython app.py\n```\n\n> \u26a0\ufe0f **First Run Warning**: The first time you run this, ChatterBot will train on the English corpus. This takes 2-5 minutes and shows lots of training output. This is normal!\n\n### Step 2: Test the Home Page\n\nOpen the application in your browser (use the Ports tab or popup). You should see your placeholder HTML.\n\n### Step 3: Test the Chat API\n\nWe can test the `/chat` endpoint using the terminal. Open a **new terminal** (click the `+` button in the terminal panel) and run:\n\n```bash\ncurl -X POST http://localhost:5000/chat \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"message\": \"Hello!\"}'\n```\n\nYou should see a JSON response like:\n```json\n{\"response\": \"Hi there!\"}\n```\n\nTry a few more:\n```bash\ncurl -X POST http://localhost:5000/chat \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"message\": \"How are you?\"}'\n```"
+      }
+    },
+    {
+      "type": "written_response",
+      "title": "Test Your Chatbot",
+      "content": {
+        "description": "Run your chatbot and test it with at least 3 different messages using the curl command. Write down what you asked and what the bot responded. Were the responses relevant? Were any responses surprising?",
+        "example_answer": "I tested my chatbot with these messages:\n1. 'Hello' - Bot said 'Hi there!' - This was a good, relevant response.\n2. 'What is your name?' - Bot said 'My name is StudentBot' - Perfect!\n3. 'Tell me a joke' - Bot said something about computers - It was a bit random but still fun.\nThe responses were mostly relevant. I was surprised it could handle 'What is your name' since I didn't specifically train it for that.",
+        "min_words": 30,
+        "max_words": 150
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Adding Custom Training (Optional Enhancement)\n\nYou can add your own training data to make the bot respond to specific topics!\n\n### Add This Code After the English Training\n\n```python\n# Custom training for school-related topics\nfrom chatterbot.trainers import ListTrainer\n\nlist_trainer = ListTrainer(chatbot)\n\n# Train on school-related conversations\nlist_trainer.train([\n    \"What subjects do you like?\",\n    \"I find all subjects interesting, but I really enjoy helping with coding!\",\n    \"Can you help with homework?\", \n    \"I can try to help explain concepts, but you should do your own work!\",\n    \"Who made you?\",\n    \"I was created by a talented Year 9 student at Tempe High School!\",\n])\n\n# Train on greetings\nlist_trainer.train([\n    \"Good morning!\",\n    \"Good morning! How can I help you today?\",\n    \"Good afternoon!\",\n    \"Good afternoon! What would you like to chat about?\",\n])\n```\n\n> \ud83d\udca1 **How List Training Works**: You provide pairs of statements. The first is a possible user message, the second is the response you want the bot to give."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Current Project Structure\n\nYour project should now look like this:\n\n```\n2027CT.myAIBot_YourName/\n├── venv/\n├── templates/\n│   └── index.html         # Placeholder (we'll improve this next)\n├── .gitignore\n├── LICENSE\n├── README.md\n├── requirements.txt\n├── app.py                  # Main application with chatbot\n└── chatbot_database.sqlite3  # Created automatically by ChatterBot\n```"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Save Your Progress\n\nCommit your changes using the TempeHS style guide:\n\n```bash\n# Stop the server first (Ctrl+C)\n\ngit add .\ngit commit -m \"feature: add ChatterBot integration and chat API\"\ngit push\n```\n\nNotice the commit message follows the format: `type: description`\n- **Type**: `feature` (we're adding new functionality)\n- **Description**: what we added (ChatterBot + API)\n\n> \u26a0\ufe0f **Note**: The `chatbot_database.sqlite3` file is your trained chatbot's memory. You might want to add it to `.gitignore` if you don't want to save it to GitHub (it can be regenerated by training again)."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## \u2705 Checklist: Before Moving On\n\n- [ ] Updated `app.py` with ChatterBot integration\n- [ ] Created `templates` folder and `index.html` placeholder\n- [ ] Successfully ran the application and saw training complete\n- [ ] Tested the `/chat` endpoint with curl commands\n- [ ] Got relevant responses from the chatbot\n- [ ] Committed and pushed your code\n\n> \ud83d\udc4d **Great work!** Your chatbot brain is ready. In the next lesson, we'll build a beautiful chat interface with Bootstrap!"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Summary\n\n| Topic | Key Points |\n|-------|------------|\n| **ChatterBot** | Finds similar statements and returns known responses |\n| **Training** | Bot learns from example conversations |\n| **API Endpoint** | `/chat` route handles messages via POST requests |\n| **Input Validation** | Always check user input for safety |\n| **JSON** | API uses JSON format for communication |\n\n**Next Up**: We'll create an attractive chat interface using Bootstrap so users can chat in their browser!"
+      }
+    }
+  ]
+}

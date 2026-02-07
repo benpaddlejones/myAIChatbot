@@ -1,0 +1,187 @@
+{
+  "id": "extending-your-chatbot",
+  "title": "Extending Your Chatbot",
+  "description": "Learn to write automated tests with pytest and improve your chatbot with better input validation. Explore ideas for further development.",
+  "sections": [
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Learning Objectives\n- Understand the difference between manual testing (UAT) and automated testing\n- Write basic automated tests using pytest\n- Implement improved input validation with sanitisation\n- Explore extension ideas for further development\n- Complete your project with final documentation\n\n---\n\n## From Manual to Automated Testing\n\nIn the last lesson, you manually tested your chatbot by clicking through each test case. That works, but...\n\n### The Problem with Manual Testing\n\n| Manual Testing | Automated Testing |\n|----------------|-------------------|\n| Slow - you click through everything | Fast - runs in seconds |\n| Boring - repetitive clicking | Automatic - runs itself |\n| Error-prone - humans make mistakes | Reliable - same every time |\n| Can't run 100 tests easily | Can run thousands of tests |\n\n> 💡 **Key Idea**: Write the test once, run it forever. Every time you change your code, you can re-run all tests automatically!"
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "Testing Understanding",
+      "content": {
+        "question": "What is the main advantage of automated testing over manual testing?",
+        "options": [
+          "Automated tests are easier to write",
+          "Automated tests find more bugs",
+          "Automated tests are consistent and can be run quickly, repeatedly",
+          "Automated tests don't require any code"
+        ],
+        "correct_index": 2,
+        "explanation": "The main advantage of automated testing is consistency and speed. Once written, automated tests run the same way every time with no human error, and can run hundreds of tests in seconds. This lets you test your code every time you make a change."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Introduction to pytest\n\n**pytest** is a Python testing framework that makes writing tests easy.\n\n### Installing pytest\n\nIn your terminal (with venv activated):\n\n```bash\npip install pytest\n```\n\nThen update your requirements:\n\n```bash\npip freeze > requirements.txt\n```\n\n### How pytest Works\n\n1. You write test functions that start with `test_`\n2. pytest automatically finds and runs them\n3. It reports which tests passed ✅ and which failed ❌\n\n### Basic pytest Structure\n\n```python\n# test_example.py\n\ndef test_addition():\n    result = 2 + 2\n    assert result == 4  # This should pass\n\ndef test_subtraction():\n    result = 10 - 3\n    assert result == 7  # This should pass\n```\n\nThe `assert` keyword checks if something is `True`. If it's `False`, the test fails."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Creating Your First pytest\n\n### Step 1: Create a Test File\n\nCreate a new file called `test_chatbot.py` in your project root:\n\n```python\n# test_chatbot.py\n\"\"\"Automated tests for the chatbot application.\"\"\"\n\nimport pytest\n\n# Import the Flask app and helper functions\nfrom app import app, check_for_crisis\n\n\nclass TestCrisisDetection:\n    \"\"\"Tests for the crisis keyword detection feature.\"\"\"\n    \n    def test_crisis_keyword_detected(self):\n        \"\"\"TC-004: Crisis keywords should be detected.\"\"\"\n        # Test various crisis phrases\n        assert check_for_crisis(\"I don't want to live anymore\") == True\n        assert check_for_crisis(\"thinking about suicide\") == True\n        assert check_for_crisis(\"want to die\") == True\n    \n    def test_normal_message_not_flagged(self):\n        \"\"\"Normal messages should NOT trigger crisis detection.\"\"\"\n        assert check_for_crisis(\"Hello, how are you?\") == False\n        assert check_for_crisis(\"What's the weather like?\") == False\n        assert check_for_crisis(\"Tell me a joke\") == False\n    \n    def test_case_insensitive(self):\n        \"\"\"Crisis detection should work regardless of case.\"\"\"\n        assert check_for_crisis(\"SUICIDE\") == True\n        assert check_for_crisis(\"SuIcIdE\") == True\n```"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "### Step 2: Add API Tests\n\nContinue adding to `test_chatbot.py`:\n\n```python\nclass TestChatAPI:\n    \"\"\"Tests for the /chat API endpoint.\"\"\"\n    \n    @pytest.fixture\n    def client(self):\n        \"\"\"Create a test client for the Flask app.\"\"\"\n        app.config['TESTING'] = True\n        with app.test_client() as client:\n            yield client\n    \n    def test_empty_message_rejected(self, client):\n        \"\"\"TC-002: Empty messages should return an error.\"\"\"\n        response = client.post('/chat', \n            json={'message': ''}\n        )\n        data = response.get_json()\n        assert 'Please enter a message' in data['response']\n    \n    def test_long_message_rejected(self, client):\n        \"\"\"TC-003: Messages over 500 chars should return an error.\"\"\"\n        long_message = 'a' * 501\n        response = client.post('/chat', \n            json={'message': long_message}\n        )\n        data = response.get_json()\n        assert 'too long' in data['response'].lower()\n    \n    def test_normal_message_gets_response(self, client):\n        \"\"\"TC-001: Normal messages should get a bot response.\"\"\"\n        response = client.post('/chat', \n            json={'message': 'Hello'}\n        )\n        data = response.get_json()\n        assert 'response' in data\n        assert len(data['response']) > 0\n```"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "### Step 3: Run Your Tests\n\nIn the terminal:\n\n```bash\n# Run all tests\npytest test_chatbot.py -v\n```\n\nThe `-v` flag means \"verbose\" - it shows more detail.\n\n### Expected Output\n\n```\n========================= test session starts ==========================\ncollected 6 items\n\ntest_chatbot.py::TestCrisisDetection::test_crisis_keyword_detected PASSED\ntest_chatbot.py::TestCrisisDetection::test_normal_message_not_flagged PASSED\ntest_chatbot.py::TestCrisisDetection::test_case_insensitive PASSED\ntest_chatbot.py::TestChatAPI::test_empty_message_rejected PASSED\ntest_chatbot.py::TestChatAPI::test_long_message_rejected PASSED\ntest_chatbot.py::TestChatAPI::test_normal_message_gets_response PASSED\n\n========================== 6 passed in 0.52s ===========================\n```\n\n> 🎉 **6 passed!** Your automated tests are working!"
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "pytest Knowledge",
+      "content": {
+        "question": "In pytest, what does the `assert` statement do?",
+        "options": [
+          "Prints a message to the console",
+          "Checks if a condition is True - fails the test if False",
+          "Imports a module for testing",
+          "Creates a new test case"
+        ],
+        "correct_index": 1,
+        "explanation": "The `assert` statement checks if a condition is True. If the condition is False, pytest marks the test as failed. For example, `assert 2 + 2 == 4` passes, but `assert 2 + 2 == 5` fails."
+      }
+    },
+    {
+      "type": "written_response",
+      "title": "Create Your Tests",
+      "content": {
+        "description": "Create the test_chatbot.py file with at least 4 test functions. Run `pytest test_chatbot.py -v`. Copy the output here showing how many tests passed. If any failed, explain what you did to fix them.",
+        "example_answer": "I created test_chatbot.py with 6 tests. Running pytest gave:\n\ntest_chatbot.py::TestCrisisDetection::test_crisis_keyword_detected PASSED\ntest_chatbot.py::TestCrisisDetection::test_normal_message_not_flagged PASSED\ntest_chatbot.py::TestCrisisDetection::test_case_insensitive PASSED\ntest_chatbot.py::TestChatAPI::test_empty_message_rejected PASSED\ntest_chatbot.py::TestChatAPI::test_long_message_rejected PASSED\ntest_chatbot.py::TestChatAPI::test_normal_message_gets_response PASSED\n\n6 passed in 0.48s\n\nAll tests passed on the first try!",
+        "min_words": 30,
+        "max_words": 200
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Improved Input Validation\n\nYour chatbot currently does basic validation (empty messages, length). Let's make it more robust!\n\n### Why Better Validation Matters\n\n| Risk | Example | Solution |\n|------|---------|----------|\n| **Script injection** | `<script>alert('hack')</script>` | Strip HTML tags |\n| **Whitespace tricks** | `\"     \"` (only spaces) | Strip and check |\n| **Special characters** | Unusual Unicode characters | Sanitise input |\n\n### Enhanced Input Validation\n\nUpdate your `/chat` route in `app.py`:\n\n```python\nimport re  # Add this import at the top of app.py\n\ndef sanitise_input(message):\n    \"\"\"\n    Clean and validate user input.\n    Returns cleaned message or None if invalid.\n    \"\"\"\n    if not message:\n        return None\n    \n    # Remove leading/trailing whitespace\n    message = message.strip()\n    \n    # Check if message is empty after stripping\n    if not message:\n        return None\n    \n    # Remove HTML tags (prevents script injection)\n    message = re.sub(r'<[^>]+>', '', message)\n    \n    # Check length after cleaning\n    if len(message) > 500:\n        return None\n    \n    return message\n```"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "### Updated Chat Route\n\nReplace your `/chat` route with this improved version:\n\n```python\n@app.route('/chat', methods=['POST'])\ndef chat():\n    \"\"\"Handle chat messages and return bot responses.\"\"\"\n    data = request.get_json()\n    raw_message = data.get('message', '')\n    \n    # Sanitise and validate input\n    user_message = sanitise_input(raw_message)\n    \n    if user_message is None:\n        if not raw_message or not raw_message.strip():\n            return jsonify({'response': 'Please enter a message!'})\n        else:\n            return jsonify({'response': 'Message too long! Please keep it under 500 characters.'})\n    \n    # Safety check for crisis keywords (use original for better detection)\n    if check_for_crisis(raw_message):\n        return jsonify({'response': CRISIS_RESPONSE})\n    \n    # Get the chatbot's response\n    bot_response = chatbot.get_response(user_message)\n    \n    return jsonify({'response': str(bot_response)})\n```\n\n### What This Improves\n\n| Before | After |\n|--------|-------|\n| `\"   \"` accepted as valid | Rejected (whitespace only) |\n| `<script>bad</script>` passed through | HTML tags stripped |\n| No input sanitisation | Clean, safe input |"
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "Input Validation",
+      "content": {
+        "question": "Why do we strip HTML tags from user input?",
+        "options": [
+          "To make messages shorter",
+          "To prevent script injection attacks",
+          "To improve the chatbot's responses",
+          "To make the interface look better"
+        ],
+        "correct_index": 1,
+        "explanation": "Stripping HTML tags prevents script injection attacks. A malicious user could try to inject `<script>` tags that execute JavaScript code. By removing all HTML tags, we ensure user input is safe to display and process."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "### Add Tests for New Validation\n\nAdd these tests to `test_chatbot.py`:\n\n```python\nfrom app import sanitise_input\n\nclass TestInputSanitisation:\n    \"\"\"Tests for input sanitisation.\"\"\"\n    \n    def test_strips_whitespace(self):\n        \"\"\"Leading and trailing whitespace should be removed.\"\"\"\n        assert sanitise_input(\"  hello  \") == \"hello\"\n    \n    def test_rejects_whitespace_only(self):\n        \"\"\"Messages with only whitespace should be rejected.\"\"\"\n        assert sanitise_input(\"     \") is None\n        assert sanitise_input(\"\\n\\t\\n\") is None\n    \n    def test_strips_html_tags(self):\n        \"\"\"HTML tags should be removed.\"\"\"\n        assert sanitise_input(\"<b>hello</b>\") == \"hello\"\n        assert sanitise_input(\"<script>alert('x')</script>\") == \"alert('x')\"\n    \n    def test_rejects_too_long(self):\n        \"\"\"Messages over 500 chars should be rejected.\"\"\"\n        assert sanitise_input(\"a\" * 501) is None\n        assert sanitise_input(\"a\" * 500) == \"a\" * 500\n```\n\nRun the tests again:\n\n```bash\npytest test_chatbot.py -v\n```"
+      }
+    },
+    {
+      "type": "written_response",
+      "title": "Implement and Test Sanitisation",
+      "content": {
+        "description": "Add the sanitise_input function to your app.py and the new tests to test_chatbot.py. Run pytest. Did all tests pass? If not, what changes did you need to make?",
+        "example_answer": "I added the sanitise_input function and updated the /chat route. When I first ran the tests, test_strips_html_tags failed because I forgot to add 'import re' at the top of my file. After adding the import, I ran pytest again and got:\n\n10 passed in 0.65s\n\nAll tests now pass. I also manually tested by typing '   ' (just spaces) and got 'Please enter a message!' as expected.",
+        "min_words": 30,
+        "max_words": 150
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Save and Commit Your Tests\n\nCommit your testing additions:\n\n```bash\ngit add .\ngit commit -m \"test: add pytest automated tests\"\ngit push\n```\n\nThen commit the validation improvements:\n\n```bash\ngit add .\ngit commit -m \"feature: add input sanitisation for security\"\ngit push\n```\n\n> 💡 **Two commits**: We make separate commits because these are different types of changes - one adds tests (`test:`), one adds a feature (`feature:`)."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Extension Ideas\n\nWant to keep improving? Here are ideas organised by difficulty:\n\n### Beginner Extensions\n\n| Extension | Description | Challenge Level |\n|-----------|-------------|----------------|\n| **Custom theme** | Change Bootstrap colors | ⭐ |\n| **More training data** | Add custom conversations | ⭐ |\n| **Chatbot personality** | Train specific responses | ⭐ |\n| **Timestamped messages** | Show when each message was sent | ⭐⭐ |\n\n### Intermediate Extensions\n\n| Extension | Description | Challenge Level |\n|-----------|-------------|----------------|\n| **Clear chat button** | Let users clear the conversation | ⭐⭐ |\n| **Export chat** | Let users download their conversation | ⭐⭐ |\n| **Multiple themes** | Let users choose dark/light mode | ⭐⭐ |\n| **Typing indicator** | Show \"Bot is typing...\" | ⭐⭐⭐ |\n\n### Advanced Extensions\n\n| Extension | Description | Challenge Level |\n|-----------|-------------|----------------|\n| **Conversation history** | Save and reload previous chats | ⭐⭐⭐ |\n| **User accounts** | Let users create accounts | ⭐⭐⭐⭐ |\n| **Admin panel** | View statistics and manage data | ⭐⭐⭐⭐ |\n| **API rate limiting** | Prevent spam | ⭐⭐⭐⭐ |"
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "Extension Planning",
+      "content": {
+        "question": "You want to add a 'Clear Chat' button. Which technologies would you primarily modify?",
+        "options": [
+          "Only Python/Flask backend",
+          "Only the ChatterBot training",
+          "JavaScript in the frontend",
+          "Only the CSS styling"
+        ],
+        "correct_index": 2,
+        "explanation": "Clearing messages from the screen is a frontend task. You'd add a button and use JavaScript to clear the chat-box contents (remove DOM elements). The backend doesn't need to change unless you also want to clear stored conversation data."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Final Project Structure\n\nYour completed project should look like this:\n\n```\n2027CT.myAIBot_YourName/\n├── venv/                      # Virtual environment (not in git)\n├── templates/\n│   └── index.html             # Chat interface with Bootstrap\n├── .gitignore                 # Includes database and venv\n├── LICENSE                    # GNU GPL v3.0\n├── README.md                  # Complete project documentation\n├── requirements.txt           # Python dependencies\n├── app.py                     # Flask app with safety features\n├── test_chatbot.py            # Automated pytest tests\n└── chatbot_database.sqlite3   # Bot's memory (not in git)\n```"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## ✅ Final Submission Checklist\n\n### Code Requirements\n- [ ] Repository named correctly (e.g., `2027CT.myAIBot_Ben.J`)\n- [ ] Created under TempeHS organization\n- [ ] `app.py` contains chatbot with safety features\n- [ ] `templates/index.html` contains Bootstrap chat interface\n- [ ] `test_chatbot.py` contains automated tests\n- [ ] `requirements.txt` lists all dependencies including pytest\n- [ ] `.gitignore` excludes venv and database\n\n### Documentation Requirements\n- [ ] README.md contains project description\n- [ ] README.md has installation instructions\n- [ ] README.md lists technologies used\n- [ ] README.md includes UAT testing results\n- [ ] README.md has your name and disclaimer\n- [ ] GNU GPL v3.0 LICENSE file present\n\n### Testing Requirements\n- [ ] All UAT test cases (TC-001 to TC-006) pass\n- [ ] All pytest automated tests pass\n- [ ] Input validation handles edge cases\n\n### Safety Requirements\n- [ ] Input validation (empty, whitespace, long messages)\n- [ ] Input sanitisation (HTML tag removal)\n- [ ] Crisis keyword detection implemented\n- [ ] Crisis response includes helpline numbers\n- [ ] Disclaimer visible in chat interface"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Final Commit\n\nMake one final commit with complete documentation:\n\n```bash\ngit add .\ngit commit -m \"docs: complete project documentation and testing\"\ngit push\n```\n\n### Verify Your Repository\n\n1. Go to your repository on GitHub\n2. Check all files are present\n3. Read through your README\n4. Make sure the LICENSE file exists\n5. Verify no database or venv files were committed"
+      }
+    },
+    {
+      "type": "written_response",
+      "title": "Project Reflection",
+      "content": {
+        "description": "Reflect on building your first web application. What was the most challenging part? What are you most proud of? What would you do differently if you started again? (4-5 sentences)",
+        "example_answer": "The most challenging part was understanding how the Flask backend and JavaScript frontend communicate through the /chat API endpoint. It took me a while to understand JSON data traveling back and forth. I'm most proud of the automated tests - knowing my code is verified by 10 different test cases gives me confidence that it works properly. If I started again, I would plan the project structure better from the start and add more custom training data to give my chatbot a more unique personality.",
+        "min_words": 50,
+        "max_words": 200
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## 🎉 Congratulations!\n\nYou've completed your first web application!\n\n### Technical Skills Achieved\n- ✅ Created a GitHub repository with proper naming and licensing\n- ✅ Used GitHub Codespaces for cloud development\n- ✅ Built a Python Flask web application\n- ✅ Integrated the ChatterBot AI library\n- ✅ Created a responsive frontend with Bootstrap\n- ✅ Wrote automated tests with pytest\n- ✅ Implemented input validation and sanitisation\n\n### Professional Skills Achieved\n- ✅ Wrote commit messages following a style guide\n- ✅ Documented your project with a complete README\n- ✅ Conducted User Acceptance Testing\n- ✅ Created automated test suites\n- ✅ Considered privacy and ethical implications\n\n> 🌟 **Well done!** You've not just built an app - you've built it *professionally* with proper testing, documentation, and version control!"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Course Summary\n\n| Lesson | Key Takeaways |\n|--------|---------------|\n| **1. Repository Setup** | Fork template, naming conventions, LICENSE, README |\n| **2. Codespaces & Flask** | Cloud development, virtual environments, web frameworks |\n| **3. Chatbot Backend** | ChatterBot integration, API endpoints |\n| **4. Bootstrap Frontend** | CDN usage, responsive design, JavaScript fetch |\n| **5. Privacy & Ethics** | Data collection, bias, disclosure, crisis detection |\n| **6. User Acceptance Testing** | Test cases, requirements, systematic testing |\n| **7. Extensions** | pytest automation, input sanitisation, future ideas |\n\n**Keep Learning**: This is just the beginning! Web development and AI are vast fields with endless opportunities to explore."
+      }
+    }
+  ]
+}

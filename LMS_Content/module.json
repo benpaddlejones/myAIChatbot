@@ -1,0 +1,20 @@
+{
+  "id": "flask-chatbot",
+  "title": "Build Your First AI Chatbot",
+  "description": "Create your very first web application - an AI-powered chatbot using Python Flask, Bootstrap, and ChatterBot in GitHub Codespaces. No prior web development experience required!",
+  "order": 3,
+  "prerequisites": ["intro-to-git"],
+  "learning_outcomes": [
+    "Create and configure a GitHub repository with proper naming conventions",
+    "Write commit messages following the TempeHS style guide",
+    "Write a README.md file documenting your project",
+    "Understand and apply the GNU GPL open source license",
+    "Set up a Python Flask web application in GitHub Codespaces",
+    "Build a functional chatbot backend using ChatterBot",
+    "Create an attractive frontend using Bootstrap",
+    "Identify privacy and ethical concerns with AI chatbots",
+    "Implement basic safety measures in AI applications",
+    "Conduct User Acceptance Testing with formal test cases",
+    "Write automated tests using pytest"
+  ]
+}

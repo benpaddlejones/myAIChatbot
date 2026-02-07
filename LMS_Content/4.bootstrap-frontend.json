@@ -1,0 +1,140 @@
+{
+  "id": "bootstrap-frontend",
+  "title": "Building the Chat Interface with Bootstrap",
+  "description": "Create an attractive, responsive chat interface using Bootstrap CSS framework and JavaScript fetch API.",
+  "sections": [
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Learning Objectives\n- Understand what Bootstrap is and why we use it\n- Create a professional-looking chat interface\n- Use JavaScript to send messages to the Flask backend\n- Handle API responses and display them dynamically\n- Make the interface responsive (works on mobile and desktop)\n\n---\n\n## What is Bootstrap?\n\n**Bootstrap** is a CSS framework that provides pre-built styles and components. Instead of writing hundreds of lines of CSS, you use Bootstrap's ready-made classes.\n\n### Why Bootstrap?\n\n| Benefit | Explanation |\n|---------|-------------|\n| \u23f1\ufe0f **Fast development** | Pre-built components save hours of work |\n| \ud83d\udcf1 **Responsive** | Automatically works on all screen sizes |\n| \ud83c\udfa8 **Professional look** | Consistent, modern design out of the box |\n| \ud83d\udcda **Well documented** | Excellent documentation with examples |\n| \ud83c\udf10 **CDN available** | No installation needed - just link to it! |\n\n### Using Bootstrap via CDN\n\nA **CDN (Content Delivery Network)** hosts Bootstrap's files so you don't need to download them. You just add links to your HTML."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## The Complete Chat Interface\n\nReplace the contents of your `templates/index.html` with this code:\n\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>My AI Chatbot</title>\n    <!-- Bootstrap CSS from CDN -->\n    <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css\" rel=\"stylesheet\">\n    <style>\n        body {\n            background-color: #f8f9fa;\n        }\n        .chat-container {\n            max-width: 600px;\n            margin: 50px auto;\n        }\n        .chat-box {\n            height: 400px;\n            overflow-y: auto;\n            border: 1px solid #dee2e6;\n            border-radius: 10px;\n            padding: 20px;\n            background-color: white;\n        }\n        .message {\n            margin-bottom: 15px;\n            padding: 10px 15px;\n            border-radius: 15px;\n            max-width: 80%;\n        }\n        .user-message {\n            background-color: #007bff;\n            color: white;\n            margin-left: auto;\n        }\n        .bot-message {\n            background-color: #e9ecef;\n            color: #333;\n        }\n        .message-time {\n            font-size: 0.75rem;\n            opacity: 0.7;\n            margin-top: 5px;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"chat-container\">\n        <div class=\"card shadow\">\n            <div class=\"card-header bg-primary text-white\">\n                <h4 class=\"mb-0\">\ud83e\udd16 My AI Chatbot</h4>\n            </div>\n            <div class=\"card-body\">\n                <div id=\"chat-box\" class=\"chat-box\">\n                    <div class=\"message bot-message\">\n                        Hello! I'm your AI assistant. How can I help you today?\n                    </div>\n                </div>\n                <form id=\"chat-form\" class=\"mt-3\">\n                    <div class=\"input-group\">\n                        <input type=\"text\" \n                               id=\"message-input\" \n                               class=\"form-control\" \n                               placeholder=\"Type your message...\" \n                               autocomplete=\"off\"\n                               maxlength=\"500\">\n                        <button type=\"submit\" class=\"btn btn-primary\">Send</button>\n                    </div>\n                </form>\n            </div>\n        </div>\n    </div>\n\n    <!-- Bootstrap JS from CDN -->\n    <script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js\"></script>\n    \n    <!-- Our chat JavaScript -->\n    <script>\n        const chatForm = document.getElementById('chat-form');\n        const messageInput = document.getElementById('message-input');\n        const chatBox = document.getElementById('chat-box');\n\n        // Function to add a message to the chat\n        function addMessage(text, isUser) {\n            const messageDiv = document.createElement('div');\n            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;\n            messageDiv.textContent = text;\n            chatBox.appendChild(messageDiv);\n            // Scroll to the bottom\n            chatBox.scrollTop = chatBox.scrollHeight;\n        }\n\n        // Handle form submission\n        chatForm.addEventListener('submit', async function(e) {\n            e.preventDefault();\n            \n            const message = messageInput.value.trim();\n            if (!message) return;\n\n            // Add user message to chat\n            addMessage(message, true);\n            messageInput.value = '';\n\n            try {\n                // Send message to Flask backend\n                const response = await fetch('/chat', {\n                    method: 'POST',\n                    headers: {\n                        'Content-Type': 'application/json',\n                    },\n                    body: JSON.stringify({ message: message })\n                });\n\n                const data = await response.json();\n                \n                // Add bot response to chat\n                addMessage(data.response, false);\n            } catch (error) {\n                addMessage('Sorry, something went wrong. Please try again.', false);\n                console.error('Error:', error);\n            }\n        });\n    </script>\n</body>\n</html>\n```"
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "Understanding the CDN Link",
+      "content": {
+        "question": "What is the purpose of the Bootstrap CDN link in the HTML head?",
+        "options": [
+          "It downloads Bootstrap to your computer permanently",
+          "It loads Bootstrap's CSS styles from a remote server hosted by jsdelivr",
+          "It sends your chat messages to Bootstrap for processing",
+          "It creates a new Bootstrap website"
+        ],
+        "correct_index": 1,
+        "explanation": "The CDN (Content Delivery Network) link tells the browser to load Bootstrap's CSS file from jsdelivr's servers. This means you get all of Bootstrap's styles without downloading or hosting the files yourself. The files are loaded fresh each time the page loads."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Understanding the HTML Structure\n\nLet's break down the key parts of our chat interface:\n\n### The Container\n\n```html\n<div class=\"chat-container\">\n    <div class=\"card shadow\">\n```\n\n| Class | What It Does |\n|-------|-------------|\n| `chat-container` | Our custom class for positioning (see CSS) |\n| `card` | Bootstrap's pre-styled card component |\n| `shadow` | Adds a subtle drop shadow |\n\n### The Chat Box\n\n```html\n<div id=\"chat-box\" class=\"chat-box\">\n```\n\n- Has `id=\"chat-box\"` so JavaScript can find it\n- Uses our custom `chat-box` class for sizing and scrolling\n- Messages are added here dynamically\n\n### The Input Form\n\n```html\n<form id=\"chat-form\" class=\"mt-3\">\n    <div class=\"input-group\">\n        <input type=\"text\" id=\"message-input\" class=\"form-control\" ...>\n        <button type=\"submit\" class=\"btn btn-primary\">Send</button>\n    </div>\n</form>\n```\n\n| Element | Purpose |\n|---------|----------|\n| `form` | Groups the input and button together |\n| `input-group` | Bootstrap class that connects the input and button visually |\n| `form-control` | Bootstrap styling for input fields |\n| `btn btn-primary` | Bootstrap button with primary (blue) colour |"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Understanding the CSS\n\nOur custom CSS handles the chat-specific styling:\n\n```css\n.chat-box {\n    height: 400px;           /* Fixed height */\n    overflow-y: auto;        /* Scroll when messages overflow */\n    border: 1px solid #dee2e6;\n    border-radius: 10px;     /* Rounded corners */\n    padding: 20px;\n    background-color: white;\n}\n```\n\n### Message Styling\n\n```css\n.user-message {\n    background-color: #007bff;  /* Blue background */\n    color: white;\n    margin-left: auto;          /* Pushes to the right side */\n}\n\n.bot-message {\n    background-color: #e9ecef;  /* Grey background */\n    color: #333;\n}\n```\n\nThe `margin-left: auto` is a CSS trick to align user messages to the right, while bot messages stay on the left."
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "CSS Styling",
+      "content": {
+        "question": "What does `overflow-y: auto` do for the chat-box?",
+        "options": [
+          "It makes the chat box invisible when there's too much content",
+          "It adds a vertical scrollbar when messages exceed the height",
+          "It automatically deletes old messages",
+          "It makes the chat box grow infinitely tall"
+        ],
+        "correct_index": 1,
+        "explanation": "overflow-y: auto means 'show a vertical scrollbar if the content is taller than the container'. Combined with a fixed height of 400px, this creates a scrollable chat area. Without it, messages would overflow and break the layout."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Understanding the JavaScript\n\nThe JavaScript handles sending messages and receiving responses:\n\n### Getting DOM Elements\n\n```javascript\nconst chatForm = document.getElementById('chat-form');\nconst messageInput = document.getElementById('message-input');\nconst chatBox = document.getElementById('chat-box');\n```\n\nWe store references to the HTML elements we need to interact with.\n\n### Adding Messages\n\n```javascript\nfunction addMessage(text, isUser) {\n    const messageDiv = document.createElement('div');\n    messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;\n    messageDiv.textContent = text;\n    chatBox.appendChild(messageDiv);\n    chatBox.scrollTop = chatBox.scrollHeight;  // Auto-scroll to bottom\n}\n```\n\nThis function:\n1. Creates a new `<div>` element\n2. Sets the appropriate CSS class (user or bot style)\n3. Sets the text content\n4. Adds it to the chat box\n5. Scrolls to show the new message"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## The Fetch API\n\nThe most important part is sending messages to our Flask backend:\n\n```javascript\nconst response = await fetch('/chat', {\n    method: 'POST',\n    headers: {\n        'Content-Type': 'application/json',\n    },\n    body: JSON.stringify({ message: message })\n});\n\nconst data = await response.json();\n```\n\n### Breaking It Down\n\n| Part | Purpose |\n|------|----------|\n| `fetch('/chat', ...)` | Send a request to the `/chat` URL |\n| `method: 'POST'` | Use POST method (sending data) |\n| `headers: { 'Content-Type': 'application/json' }` | Tell Flask we're sending JSON |\n| `body: JSON.stringify({ message: message })` | Convert our data to JSON format |\n| `await response.json()` | Convert the response from JSON |\n\n### The async/await Pattern\n\n```javascript\nchatForm.addEventListener('submit', async function(e) {\n    e.preventDefault();  // Stop page from reloading\n    // ...\n});\n```\n\n- `async` marks the function as asynchronous (it will wait for things)\n- `await` pauses execution until the fetch completes\n- `e.preventDefault()` stops the form from reloading the page"
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "Understanding fetch()",
+      "content": {
+        "question": "What does `JSON.stringify({ message: message })` do?",
+        "options": [
+          "It encrypts the message for security",
+          "It converts a JavaScript object to a JSON string for sending to the server",
+          "It validates that the message is correct",
+          "It translates the message to another language"
+        ],
+        "correct_index": 1,
+        "explanation": "JSON.stringify() converts a JavaScript object (like { message: 'Hello' }) into a JSON string ('{\"message\": \"Hello\"}'). This string format can be sent over the network to our Flask server, which expects JSON data."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Test Your Chat Interface\n\n### Step 1: Run the Application\n\nIn the terminal:\n\n```bash\npython app.py\n```\n\n### Step 2: Open in Browser\n\nUse the Ports tab or popup to open port 5000.\n\n### Step 3: Test the Chat\n\nYou should see:\n- A beautiful blue-themed chat interface\n- A welcome message from the bot\n- A text input and Send button\n\nTry sending messages:\n- \"Hello!\"\n- \"What is your name?\"\n- \"Tell me about yourself\"\n- \"How are you?\"\n\n### What to Expect\n\n- Your message appears on the **right** (blue)\n- The bot's response appears on the **left** (grey)\n- The chat scrolls automatically as messages are added"
+      }
+    },
+    {
+      "type": "written_response",
+      "title": "Explore Bootstrap Classes",
+      "content": {
+        "description": "Look at the HTML code and identify 3 Bootstrap classes used (hint: they're words after 'class=' that aren't our custom classes). Write the class names and your guess about what each one does.",
+        "example_answer": "1. 'card-header' - This creates the styled header section at the top of the card, giving it background color and proper spacing.\n2. 'btn' and 'btn-primary' - These style the button. 'btn' adds the basic button styling, and 'btn-primary' makes it blue (the primary color).\n3. 'form-control' - This styles the text input field to have Bootstrap's standard input appearance with proper borders and padding.",
+        "min_words": 30,
+        "max_words": 120
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Customizing Your Chatbot\n\n### Change the Title\n\nFind this line and change \"My AI Chatbot\" to your bot's name:\n\n```html\n<h4 class=\"mb-0\">\ud83e\udd16 My AI Chatbot</h4>\n```\n\n### Change the Welcome Message\n\nModify the initial bot message:\n\n```html\n<div class=\"message bot-message\">\n    Hello! I'm your AI assistant. How can I help you today?\n</div>\n```\n\n### Change the Color Scheme\n\nBootstrap has several color themes you can use:\n\n| Class | Description |\n|-------|-------------|\n| `bg-primary` | Blue |\n| `bg-success` | Green |\n| `bg-danger` | Red |\n| `bg-warning` | Yellow |\n| `bg-info` | Cyan |\n| `bg-dark` | Dark grey |\n\nFor example, to make a green-themed chat:\n\n```html\n<div class=\"card-header bg-success text-white\">\n```\n\n```css\n.user-message {\n    background-color: #28a745;  /* Green (\n```"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Adding Error Handling\n\nNotice how we handle errors:\n\n```javascript\ntry {\n    const response = await fetch('/chat', ...);\n    const data = await response.json();\n    addMessage(data.response, false);\n} catch (error) {\n    addMessage('Sorry, something went wrong. Please try again.', false);\n    console.error('Error:', error);\n}\n```\n\n### Why Error Handling Matters\n\n| Scenario | Without Error Handling | With Error Handling |\n|----------|----------------------|--------------------|\n| Server is down | Page freezes, no feedback | User sees error message |\n| Network issues | Silent failure | User knows to try again |\n| Invalid response | JavaScript crashes | Graceful fallback |\n\n> \ud83d\udd12 **Best Practice**: Always wrap API calls in try/catch to handle failures gracefully."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Current Project Structure\n\nYour project should now look like this:\n\n```\n2027CT.myAIBot_YourName/\n├── venv/\n├── templates/\n│   └── index.html         # Chat interface (updated!)\n├── .gitignore\n├── LICENSE\n├── README.md\n├── requirements.txt\n├── app.py\n└── chatbot_database.sqlite3\n```"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Save Your Progress\n\nCommit your beautiful new interface using the style guide:\n\n```bash\n# Stop the server first (Ctrl+C)\n\ngit add .\ngit commit -m \"feature: add Bootstrap chat interface\"\ngit push\n```\n\n> \ud83d\udca1 **Pattern**: `feature: add [what]` - We're adding the Bootstrap interface!"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## \u2705 Checklist: Before Moving On\n\n- [ ] Updated `index.html` with the Bootstrap chat interface\n- [ ] Chat interface displays correctly in the browser\n- [ ] User messages appear on the right (blue)\n- [ ] Bot responses appear on the left (grey)\n- [ ] Chat scrolls automatically when new messages are added\n- [ ] Customized the title and/or colors (optional)\n- [ ] Committed and pushed your code\n\n> \ud83d\udc4d **Amazing work!** You now have a fully functional chatbot! In the next lesson, we'll discuss important privacy and ethical considerations for AI applications."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Summary\n\n| Topic | Key Points |\n|-------|------------|\n| **Bootstrap** | CSS framework loaded via CDN for quick styling |\n| **Chat Interface** | Card component with scrollable message area |\n| **JavaScript fetch()** | Sends messages to Flask backend asynchronously |\n| **Error Handling** | try/catch prevents crashes when things go wrong |\n| **Customization** | Change colors using Bootstrap's bg-* classes |\n\n**Next Up**: We'll discuss privacy concerns, AI ethics, and responsible development practices!"
+      }
+    }
+  ]
+}

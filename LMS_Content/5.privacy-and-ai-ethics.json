@@ -1,0 +1,224 @@
+{
+  "id": "privacy-and-ai-ethics",
+  "title": "Privacy and AI Ethics",
+  "description": "Explore important privacy concerns and ethical considerations when building AI chatbots, and learn how to implement responsible safeguards.",
+  "sections": [
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Learning Objectives\n- Identify privacy concerns with AI chatbots\n- Understand data collection and storage implications\n- Recognise potential for AI bias and misinformation\n- Discuss ethical responsibilities of AI developers\n- Implement basic safety measures in your chatbot\n- Explain disclosure requirements when using AI\n\n---\n\n## Why Ethics Matter for AI Developers\n\nCongratulations! You've built a working AI chatbot. But with this power comes **responsibility**.\n\nEvery piece of software you create affects real people. AI chatbots have been involved in:\n\n- \ud83d\udea8 **Mental health crises** when users shared concerning thoughts with bots\n- \ud83d\udd12 **Privacy breaches** when conversations were shared or leaked\n- \ud83d\udcb0 **Scams** when people thought they were talking to humans\n- \ud83d\udeab **Discrimination** when AI gave biased responses\n\n> \u2757 **Important**: As developers, we have an ethical duty to consider how our software might affect users - especially vulnerable ones."
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "AI Developer Responsibility",
+      "content": {
+        "question": "Why should AI developers think about ethics when building chatbots?",
+        "options": [
+          "Because ethical chatbots are faster and more efficient",
+          "Because their software affects real people who might be vulnerable or misled",
+          "Because it's a legal requirement in all countries",
+          "Because ethical code is easier to write"
+        ],
+        "correct_index": 1,
+        "explanation": "Developers have a responsibility to consider how their software affects users. Chatbots interact with real people - some may be vulnerable, confused, or mislead by AI responses. Ethical consideration isn't just nice to have; it's part of being a professional developer."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Privacy Concern #1: Data Collection\n\n### What Data Does Your Chatbot Collect?\n\nLook at our code:\n\n```python\nchatbot = ChatBot(\n    'StudentBot',\n    storage_adapter='chatterbot.storage.SQLStorageAdapter',\n    database_uri='sqlite:///chatbot_database.sqlite3'\n)\n```\n\nChatterBot stores **all conversations** in a database. This means:\n\n| What's Stored | Privacy Implication |\n|---------------|---------------------|\n| Every message sent | Could contain personal information |\n| Response patterns | Could reveal user habits |\n| Training data | Might include inappropriate content |\n| Timestamps | Shows when users were active |\n\n### The Problem\n\nUsers might share:\n- Their name, age, or location\n- Personal problems or feelings\n- Information about friends or family\n- School-related issues\n\n> \ud83d\udca1 **Think About It**: Would you want every message you send to a chatbot stored in a database forever?"
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "Data Storage Awareness",
+      "content": {
+        "question": "A user tells your chatbot: 'I'm Sarah from Year 9 at Lincoln High School and I'm feeling really stressed about exams.' What privacy concerns does this raise?",
+        "options": [
+          "No concerns - chatbots need this information to respond",
+          "The message contains personally identifiable information that will be stored in the database",
+          "The stress information is private but the name and school are fine to store",
+          "Only the exam information is sensitive"
+        ],
+        "correct_index": 1,
+        "explanation": "This message contains personally identifiable information (PII): a name, year level, specific school, and emotional state. All of this would be stored in the chatbot's database, which raises significant privacy concerns. Users should be informed about what data is collected and how it's used."
+      }
+    },
+    {
+      "type": "written_response",
+      "title": "Privacy Reflection",
+      "content": {
+        "description": "Imagine a Year 7 student uses your chatbot and shares that they're being bullied. How might storing this conversation in your database create privacy or safety issues? What should happen instead? (3-4 sentences)",
+        "example_answer": "Storing this conversation creates privacy issues because the student shared sensitive personal information that could identify them if the database is accessed by others. If this information was leaked or the database was hacked, it could cause embarrassment or even more problems for the student. A better approach would be to not store sensitive conversations, or to inform users clearly that messages are stored. Ideally, the chatbot should also recognize serious topics like bullying and provide resources like helplines rather than just chatting.",
+        "min_words": 40,
+        "max_words": 150
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Privacy Concern #2: Who Can Access the Data?\n\n### Current Situation\n\nIn your chatbot:\n- The database file (`chatbot_database.sqlite3`) is in your repository\n- If public, **anyone can download it**\n- If you pushed the database to GitHub, all conversations are visible\n\n### Questions to Consider\n\n| Question | Why It Matters |\n|----------|----------------|\n| Who can see the database file? | Could be your teacher, classmates, or anyone online |\n| Where is data stored? | On your computer? In the cloud? On GitHub? |\n| How long is data kept? | Forever by default - should it be? |\n| Can users delete their data? | Australian Privacy Act gives people rights over their data |\n\n### Mitigation: Add to .gitignore\n\nAt minimum, add the database to `.gitignore` so it's not shared:\n\n```bash\n# Add this line to .gitignore\nchatbot_database.sqlite3\n```"
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "Data Access Control",
+      "content": {
+        "question": "Your chatbot's database file is accidentally pushed to a public GitHub repository. What is the most serious consequence?",
+        "options": [
+          "GitHub will charge you for storage",
+          "Any user conversations stored in the database become publicly accessible forever",
+          "The database will stop working",
+          "Your code will have syntax errors"
+        ],
+        "correct_index": 1,
+        "explanation": "Once data is pushed to a public repository, it can be downloaded, copied, and archived by anyone. Even if you delete it later, copies may exist elsewhere. This could expose all private conversations your chatbot has had, potentially including personal information users shared."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## AI Concern #1: Bias and Misinformation\n\n### How Chatbots Learn Bias\n\nChatterBot learns from conversations. If its training data contains:\n\n- Stereotypes → The bot might repeat stereotypes\n- Factual errors → The bot might spread misinformation\n- Offensive language → The bot might become offensive\n\n### Real-World Example: Microsoft Tay\n\nIn 2016, Microsoft launched an AI chatbot called \"Tay\" on Twitter. Within 24 hours:\n\n- Internet users deliberately fed it offensive content\n- Tay started posting racist, sexist, and inflammatory tweets\n- Microsoft had to shut it down in less than a day\n\n### The Problem with Your Chatbot\n\nChatterBot uses the \"English corpus\" for training, which includes:\n- General conversation examples\n- Some dated or potentially biased content\n- No fact-checking mechanism\n\n> \u26a0\ufe0f **Warning**: Your chatbot might give incorrect or biased answers without knowing it's wrong!"
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "AI Bias Understanding",
+      "content": {
+        "question": "A chatbot trained on old textbooks consistently says 'nurses are women and doctors are men.' This is an example of:",
+        "options": [
+          "Accurate historical information",
+          "A technical bug that needs debugging",
+          "AI bias reflecting stereotypes in the training data",
+          "The chatbot's personal opinion"
+        ],
+        "correct_index": 2,
+        "explanation": "This is a classic example of AI bias. The chatbot isn't making decisions - it's reflecting patterns in its training data. If old textbooks contained gender stereotypes, the AI learns and repeats them. AI doesn't understand that these stereotypes are harmful or incorrect."
+      }
+    },
+    {
+      "type": "written_response",
+      "title": "Addressing Bias",
+      "content": {
+        "description": "Your chatbot gives a factually incorrect answer about Australian history. A user believes it because 'the AI told me.' Who is responsible - the user for believing it, or you for creating the chatbot? Explain your reasoning. (3-4 sentences)",
+        "example_answer": "While users should think critically about information from any source, the developer shares significant responsibility for creating software that can spread misinformation. As the creator, I know the chatbot isn't fact-checked and can make mistakes, but a typical user might not understand this. It would be irresponsible to release a chatbot that presents itself as knowledgeable without warning users that it might be wrong. Developers should add disclaimers and consider ways to indicate when the bot is uncertain.",
+        "min_words": 40,
+        "max_words": 150
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## AI Concern #2: Disclosure - Should Users Know?\n\n### The Transparency Question\n\nShould users know they're talking to a bot, not a human?\n\n### Arguments For Disclosure\n\n| Reason | Example |\n|--------|----------|\n| **Honesty** | Users have a right to know who/what they're talking to |\n| **Trust** | Deception damages trust when discovered |\n| **Expectations** | People interact differently with AI vs humans |\n| **Legal** | Some places require AI disclosure (e.g., EU AI Act) |\n\n### Arguments Against Disclosure\n\n| Reason | Counter-argument |\n|--------|------------------|\n| \"Users might not engage\" | They have the right to make that choice |\n| \"It breaks immersion\" | User experience doesn't justify deception |\n| \"It's obvious\" | Is it? Many bots are very convincing |\n\n### Best Practice\n\nAlways disclose when users are interacting with AI. Our chatbot does this with the robot emoji and \"AI Chatbot\" title - but is that enough?"
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "AI Disclosure",
+      "content": {
+        "question": "A company creates a customer service chatbot that pretends to be human, using fake names and personal stories. Why is this ethically problematic?",
+        "options": [
+          "It's not problematic - chatbots should be engaging",
+          "It deceives users who have a right to know they're talking to AI",
+          "It makes the chatbot work slower",
+          "Human names are copyrighted"
+        ],
+        "correct_index": 1,
+        "explanation": "Deliberately pretending an AI is human is deceptive. Users interact differently with humans vs AI - they might share more personal information thinking a human will be empathetic, or trust advice more. Deception undermines user autonomy and trust, even if the bot is helpful."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## AI Concern #3: Sensitive Topics\n\n### What If Someone Shares Something Serious?\n\nUsers might tell your chatbot:\n- They're feeling depressed or anxious\n- They're being bullied or harassed\n- They're having thoughts of self-harm\n- They're experiencing abuse at home\n\n### The Danger of Generic Responses\n\nIf someone says \"I don't want to be alive anymore\" and your chatbot responds with:\n\n> \"That's interesting! Tell me more about that.\"\n\nThis is not just unhelpful - it could be **dangerous**.\n\n### What Should Happen Instead?\n\nA responsible chatbot should:\n\n1. **Recognize** sensitive keywords or topics\n2. **Respond appropriately** (not with casual conversation)\n3. **Provide resources** (helplines, websites)\n4. **Not pretend to be a therapist** or provide advice"
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "Sensitive Topics",
+      "content": {
+        "question": "A user tells your chatbot they're feeling suicidal. What would be the MOST responsible automated response?",
+        "options": [
+          "Try to cheer them up with a joke to lighten the mood",
+          "Change the subject to something happier",
+          "Provide crisis helpline information and encourage them to talk to someone they trust",
+          "Collect their information so you can check on them later"
+        ],
+        "correct_index": 2,
+        "explanation": "When someone expresses suicidal thoughts, the most responsible action is to connect them with professional help. Jokes or topic changes trivialize their feelings. Collecting information creates privacy issues. Crisis helplines (like Lifeline: 13 11 14 in Australia) have trained counselors who can provide proper support."
+      }
+    },
+    {
+      "type": "written_response",
+      "title": "Crisis Response Design",
+      "content": {
+        "description": "Design a crisis response for your chatbot. Write the exact message it should display when it detects keywords like 'suicide', 'self-harm', or 'don't want to live'. Include at least one helpline number.",
+        "example_answer": "I'm concerned about what you've shared. Please know that you're not alone and there are people who want to help.\n\nIf you're in crisis, please reach out:\n- Lifeline: 13 11 14 (24/7)\n- Kids Helpline: 1800 55 1800\n- Beyond Blue: 1300 22 4636\n\nI'm just a chatbot and can't provide the support you need, but these services have trained counselors available right now. Please talk to someone - whether it's a helpline, a teacher, or someone you trust.",
+        "min_words": 50,
+        "max_words": 200
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Implementing Safety Measures\n\n### Adding Basic Content Filtering\n\nAdd this code to your `app.py` before the chat route:\n\n```python\n# Safety: Keywords that should trigger a mental health response\nCRISIS_KEYWORDS = [\n    'suicide', 'kill myself', 'end my life', 'self harm', 'self-harm',\n    'dont want to live', \"don't want to live\", 'want to die'\n]\n\nCRISIS_RESPONSE = \"\"\"I'm concerned about what you've shared. Please know that you're not alone.\n\nIf you're in crisis, please reach out for support:\n- Lifeline: 13 11 14 (24/7)\n- Kids Helpline: 1800 55 1800\n- Beyond Blue: 1300 22 4636\n\nI'm just a chatbot and can't provide the support you need, but these services have trained counselors ready to help right now.\"\"\"\n\ndef check_for_crisis(message):\n    \"\"\"Check if message contains crisis keywords.\"\"\"\n    message_lower = message.lower()\n    for keyword in CRISIS_KEYWORDS:\n        if keyword in message_lower:\n            return True\n    return False\n```\n\n### Update Your Chat Route\n\n```python\n@app.route('/chat', methods=['POST'])\ndef chat():\n    data = request.get_json()\n    user_message = data.get('message', '')\n    \n    if not user_message:\n        return jsonify({'response': 'Please enter a message!'})\n    \n    if len(user_message) > 500:\n        return jsonify({'response': 'Message too long!'})\n    \n    # Safety check for crisis keywords\n    if check_for_crisis(user_message):\n        return jsonify({'response': CRISIS_RESPONSE})\n    \n    bot_response = chatbot.get_response(user_message)\n    return jsonify({'response': str(bot_response)})\n```"
+      }
+    },
+    {
+      "type": "mcq",
+      "title": "Implementation Decisions",
+      "content": {
+        "question": "The safety code checks for crisis keywords BEFORE getting a chatbot response. Why is this order important?",
+        "options": [
+          "It makes the code run faster",
+          "It prevents insensitive or inappropriate chatbot responses to crisis messages",
+          "The chatbot can't process messages with those words",
+          "It's just for code organization"
+        ],
+        "correct_index": 1,
+        "explanation": "By checking for crisis keywords first, we ensure the user receives our carefully written safety message rather than whatever random response the chatbot might generate. The chatbot wasn't trained for crisis intervention and might respond inappropriately to someone in distress."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Adding a Disclaimer\n\nUpdate your HTML to include a visible disclaimer. Add this after the welcome message:\n\n```html\n<div class=\"alert alert-warning mt-3\" role=\"alert\">\n    <strong>\u26a0\ufe0f Disclaimer:</strong> I'm an AI chatbot created by a student. \n    I don't always give accurate information and I'm not a substitute for \n    talking to a real person. If you need help, please speak with a trusted \n    adult or contact a helpline.\n</div>\n```\n\n### Why Disclaimers Matter\n\n| Benefit | Explanation |\n|---------|-------------|\n| **Sets expectations** | Users know not to expect perfect answers |\n| **Encourages critical thinking** | Users will verify important information |\n| **Provides alternatives** | Points to real help if needed |\n| **Demonstrates responsibility** | Shows you've considered user welfare |"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Privacy and AI Summary Table\n\n| Issue | Risk | Mitigation |\n|-------|------|------------|\n| **Data Collection** | Personal info stored without consent | Inform users, minimize storage |\n| **Data Access** | Conversations leaked or shared | Secure storage, don't push to public repos |\n| **Bias** | Bot reflects harmful stereotypes | Careful training data selection, disclaimers |\n| **Misinformation** | Bot gives wrong information | Disclaimers, don't present as authoritative |\n| **Disclosure** | Users don't know it's AI | Clear labeling, honest design |\n| **Sensitive Topics** | Inappropriate responses to crisis | Keyword detection, helpline info |\n| **Manipulation** | Bot used to exploit vulnerable users | Ethical design, content filtering |"
+      }
+    },
+    {
+      "type": "written_response",
+      "title": "Ethical Design Reflection",
+      "content": {
+        "description": "After learning about privacy and AI ethics, what ONE change would you make to your chatbot that you haven't already implemented? Explain why this change is important. (2-3 sentences)",
+        "example_answer": "I would add a 'Delete my conversation history' button that lets users clear their messages from the database. This is important because users should have control over their personal data, and some people might share things they later regret. The Australian Privacy Act also gives people the right to have their data deleted, so this feature would help comply with privacy laws.",
+        "min_words": 30,
+        "max_words": 120
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## \u2705 Checklist: Ethical Implementation\n\n- [ ] Added crisis keyword detection to your code\n- [ ] Included helpline information in crisis responses\n- [ ] Added a visible disclaimer to your chat interface\n- [ ] Added `chatbot_database.sqlite3` to `.gitignore`\n- [ ] Understood data collection implications\n- [ ] Considered bias in training data\n- [ ] Your chatbot clearly identifies as AI, not human\n\n> \ud83d\udc4d **Important**: These aren't just checkboxes - they represent real ethical considerations you should think about for every software project."
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Save Your Progress\n\nCommit your safety and privacy features:\n\n```bash\n# Stop the server first (Ctrl+C)\n\ngit add .\ngit commit -m \"feature: add safety features and privacy controls\"\ngit push\n```\n\nYour commit message reflects that we've added:\n- Crisis keyword detection\n- Helpline information\n- User disclaimers\n- Data protection via `.gitignore`"
+      }
+    },
+    {
+      "type": "markdown",
+      "content": {
+        "text": "## Summary\n\n| Topic | Key Takeaway |\n|-------|--------------|\n| **Privacy** | Your chatbot stores conversations - users should know this |\n| **Data Access** | Keep databases secure, don't expose to public |\n| **Bias** | AI reflects its training data, including biases |\n| **Disclosure** | Be transparent that users are talking to AI |\n| **Sensitive Topics** | Have safety responses for crisis situations |\n| **Responsibility** | Developers are responsible for considering user welfare |\n\n**Next Up**: We'll test everything together and explore ways to extend your chatbot!"
+      }
+    }
+  ]
+}

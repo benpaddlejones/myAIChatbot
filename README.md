@@ -1,10 +1,10 @@
-# Project Title
+# My AI Chatbot
 
-Simple overview of use/purpose.
+A web-based AI chatbot built with Python Flask and Bootstrap.
 
 ## Description
 
-An in-depth paragraph about your project and overview of use.
+An AI-powered chatbot that can have conversations with users. It responds to common questions and provides helpful information. Built as part of the TempeHS Computing Technology course.
 
 ## Getting Started
 
@@ -37,10 +37,8 @@ command to run if program contains helper info
 
 ## Authors
 
-Contributors names and contact info
-
-ex. Mr Jones
-ex. [@benpaddlejones](https://github.com/benpaddlejones)
+Student Name  
+[@studentusername](https://github.com/studentusername)
 
 ## Version History
 
@@ -52,7 +50,7 @@ ex. [@benpaddlejones](https://github.com/benpaddlejones)
 
 ## License
 
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
+This project is licensed under the GNU GPL v3.0 License - see the LICENSE.md file for details
 
 ## Acknowledgments
 
